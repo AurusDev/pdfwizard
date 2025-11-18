@@ -1,0 +1,177 @@
+# 🧾 Conciliação Cotidiano (PDF Wizard)
+
+Aplicação web em **Flask** para upload, visualização e edição de PDFs diretamente no navegador.
+
+Você consegue:
+
+- Enviar um PDF e visualizar em alta qualidade
+- Rotacionar páginas
+- Inserir marca d’água
+- Baixar qualquer página como **PNG**
+- Inserir imagens dentro do PDF
+- Mesclar com outros PDFs
+- Extrair texto de todo o documento
+- Abrir o conteúdo em um editor estilo **Word** (TinyMCE)
+
+Interface pensada para o dia a dia de rotinas de DP/Folha.
+
+---
+
+## 🚀 Tecnologias principais
+
+**Backend**
+
+- Python 3.x
+- Flask
+- PyMuPDF (`fitz`) – leitura/edição de PDF e geração de PNG
+- pypdf – manipulação de páginas / merge / rotação
+- reportlab – geração de marca d’água
+- Pillow – tratamento de imagens
+- python-dotenv – variáveis de ambiente
+
+**Frontend**
+
+- Tailwind CSS (via CDN)
+- pdf.js – renderização do PDF no canvas
+- fabric.js – overlay de edição (caixas de texto, etc.)
+- TinyMCE 6 (via Tiny Cloud) – editor rich text estilo Word
+
+---
+
+## 📁 Estrutura de pastas
+
+```text
+pdfwizard/
+├─ app.py                 # App Flask (rotas e APIs)
+├─ pdf_tools.py           # Funções auxiliares para PDF (extra)
+├─ requirements.txt
+├─ Procfile               # Configuração para deploy com gunicorn (Render, etc.)
+├─ .env                   # Variáveis de ambiente (local, não versionar)
+├─ uploads/               # PDFs enviados (criado em runtime)
+├─ templates/
+│  ├─ base.html           # Layout base (header/footer)
+│  ├─ index.html          # Tela inicial + upload
+│  └─ painel.html         # Painel de edição do PDF
+└─ static/
+   └─ js/
+      └─ upload.js        # (se utilizado) lógica de upload via JS
+🔐 Variáveis de ambiente
+Crie um arquivo .env na raiz do projeto (mesma pasta do app.py) com:
+
+env
+Copiar código
+TINYMCE_API_KEY=SUAS_CHAVE_DO_TINYMCE_AQUI
+
+# opcionais
+FLASK_ENV=development
+FLASK_DEBUG=1
+Importante: a TINYMCE_API_KEY é gerada no painel do Tiny Cloud.
+Em produção (Render / Railway / etc.) você cadastra essas variáveis direto no painel da plataforma – não sobe o .env para o Git.
+
+👨‍💻 Rodando localmente
+Clonar o repositório
+
+bash
+Copiar código
+git clone https://github.com/seu-usuario/pdfwizard.git
+cd pdfwizard
+Criar e ativar o ambiente virtual
+
+bash
+Copiar código
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux / Mac
+source .venv/bin/activate
+Instalar dependências
+
+bash
+Copiar código
+pip install -r requirements.txt
+Criar o .env (se ainda não criou)
+
+env
+Copiar código
+TINYMCE_API_KEY=SUAS_CHAVE_DO_TINYMCE
+FLASK_ENV=development
+FLASK_DEBUG=1
+Rodar o servidor
+
+bash
+Copiar código
+python app.py
+A aplicação sobe em:
+
+text
+Copiar código
+http://127.0.0.1:5000
+🧩 Funcionalidades do painel
+No painel (/painel?filename=...) você tem:
+
+1. Visualização do PDF
+PDF renderizado via pdf.js em um canvas.
+
+Navegação de páginas (anterior / próxima).
+
+Sobreposição com fabric.js para criação de caixas de texto (modo edição visual).
+
+2. Ferramentas principais (APIs)
+Rotacionar PDF
+
+Chama POST /api/rotate
+
+Parâmetro: degrees (90, 180, 270)
+
+Sobrescreve o arquivo atual.
+
+Marca d’água
+
+Chama POST /api/watermark
+
+Cria um PDF de watermark com reportlab e mescla em todas as páginas.
+
+Página como PNG
+
+Chama POST /api/page_png
+
+Usa PyMuPDF para renderizar a página e retorna image/png para download.
+
+Inserir imagem no PDF
+
+Chama POST /api/insert_image
+
+Parâmetros: page, x, y, w + arquivo image
+
+Insere a imagem na coordenada indicada e salva o PDF.
+
+Mesclar PDFs
+
+Chama POST /api/merge
+
+Recebe múltiplos arquivos .pdf e faz insert_pdf em sequência.
+
+Extrair texto
+
+Chama POST /api/extract_text
+
+Percorre as páginas com PyMuPDF (get_text()) e devolve todo o texto numa string.
+
+3. Editar como Word (TinyMCE)
+Botão “Editar como Word” abre um modal com o TinyMCE.
+
+Ao abrir:
+
+Front chama /api/extract_text
+
+O texto extraído é jogado no editor dentro de um <pre> (mantendo quebras de linha).
+
+O botão “Salvar alterações” atualmente só:
+
+Lê o HTML do editor
+
+Mostra um alerta (gancho para futura implementação de HTML → PDF/DOCX).
+
+Próximo passo natural: criar uma rota /api/html_to_pdf ou /api/html_to_docx para converter o HTML do TinyMCE em arquivo e sobrescrever/gerar um novo PDF.
