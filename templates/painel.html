@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="py-5 px-4">
+    <div class="flex items-center gap-4">
+        <!-- Botão de modo edição com feedback -->
+        <button id="toggle-edit"
+            class="px-4 py-2 rounded-md font-semibold bg-[#22c55e] text-white hover:opacity-90 transition">
+            Ativar edição
+        </button>
+
+        <div class="flex items-center gap-2 text-sm text-white/70">
+            <label>Fonte</label>
+            <select id="font-family" class="bg-black/30 border border-white/10 rounded px-2 py-1">
+                <option value="helv">Helvetica</option>
+                <option value="times">Times</option>
+                <option value="courier">Courier</option>
+            </select>
+
+            <label>Tam.</label>
+            <input id="font-size" type="number" min="6" value="12"
+                class="w-16 bg-black/30 border border-white/10 rounded px-2 py-1">
+
+            <label>Cor</label>
+            <input id="font-color" type="color" value="#000000" class="bg-black/30 border border-white/10 rounded">
+
+            <select id="align" class="bg-black/30 border border-white/10 rounded px-2 py-1">
+                <option value="left">Esquerda</option>
+                <option value="center">Centro</option>
+                <option value="right">Direita</option>
+                <option value="justify">Justificado</option>
+            </select>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2 text-sm text-white/60">
+            Editando:
+            <a class="text-[#a78bfa] hover:underline" href="{{ url_for('download_file', filename=filename) }}">{{
+                filename }}</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-4">
+        <!-- Visor PDF -->
+        <div class="lg:col-span-3 bg-white/5 rounded-xl p-3 border border-white/10">
+            <div id="page-container" class="mx-auto my-3 relative"></div>
+
+            <div class="mt-2 flex justify-between text-xs text-white/60">
+                <div>Dica: ative o modo edição e <b>duplo-clique</b> em uma linha para criar uma caixa de edição daquela
+                    linha.</div>
+                <div class="flex items-center gap-3">
+                    <button id="prev-page" class="px-2 py-1 bg-white/10 text-white rounded">◀</button>
+                    <span id="page-info">1/1</span>
+                    <button id="next-page" class="px-2 py-1 bg-white/10 text-white rounded">▶</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ferramentas -->
+        <aside class="bg-white/5 p-4 rounded-xl border border-white/10">
+            <h3 class="text-lg font-semibold text-white mb-4">Ferramentas</h3>
+
+            <div class="mb-4">
+                <label class="block text-sm text-white/70 mb-1">Rotacionar (°)</label>
+                <div class="flex gap-2">
+                    <select id="rotate-deg" class="bg-black/30 border border-white/10 rounded-lg px-3 py-2 w-full">
+                        <option>90</option>
+                        <option>180</option>
+                        <option>270</option>
+                    </select>
+                    <button class="px-4 py-2 bg-[#7c3aed] rounded-lg font-semibold" onclick="rotate()">Aplicar</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm text-white/70 mb-1">Marca d'água</label>
+                <input id="wm-text" class="bg-black/30 border border-white/10 rounded-lg px-3 py-2 w-full"
+                    placeholder="Texto da marca d'água">
+                <button class="w-full mt-2 px-4 py-2 bg-[#8b5cf6] rounded-lg font-semibold"
+                    onclick="watermark()">Aplicar</button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm text-white/70 mb-1">Baixar página como imagem (PNG)</label>
+                <div class="flex gap-2">
+                    <input id="png-page" type="number" min="1" value="1"
+                        class="bg-black/30 border border-white/10 rounded-lg px-3 py-2 w-24">
+                    <button class="px-4 py-2 bg-[#7c3aed] rounded-lg font-semibold" onclick="downloadPNG()">Baixar
+                        PNG</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm text-white/70 mb-1">Adicionar imagem ao PDF (página,x,y,tamanho)</label>
+                <input id="img-file" type="file" accept="image/*" class="block w-full text-sm mb-2">
+                <div class="grid grid-cols-4 gap-2">
+                    <input id="img-page" value="1" class="bg-black/30 border border-white/10 rounded px-2 py-1">
+                    <input id="img-x" value="72" class="bg-black/30 border border-white/10 rounded px-2 py-1">
+                    <input id="img-y" value="72" class="bg-black/30 border border-white/10 rounded px-2 py-1">
+                    <input id="img-w" value="200" class="bg-black/30 border border-white/10 rounded px-2 py-1">
+                </div>
+                <button class="w-full mt-2 px-4 py-2 bg-emerald-600 rounded-lg font-semibold"
+                    onclick="insertImage()">Inserir imagem</button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm text-white/70 mb-1">Mesclar com PDFs</label>
+                <input id="merge-files" type="file" accept=".pdf" multiple class="block w-full text-sm">
+                <button class="w-full mt-2 px-4 py-2 bg-[#6d28d9] rounded-lg font-semibold"
+                    onclick="merge()">Mesclar</button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm text-white/70 mb-1">Extração de Texto</label>
+                <button class="w-full px-4 py-2 bg-[#9333ea] rounded-lg font-semibold" onclick="extractText()">Extrair
+                    texto</button>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <a class="text-white/80 underline" href="{{ url_for('download_file', filename=filename) }}">Baixar
+                    atual</a>
+            </div>
+
+            <hr class="my-6 border-white/10">
+
+            <!-- Abrir editor como "Word" (TinyMCE) -->
+            <button id="btn-open-word" class="w-full px-4 py-2 bg-[#22c55e] rounded-lg font-semibold">
+                Editar como Word
+            </button>
+        </aside>
+    </div>
+</section>
+
+<!-- Modal TinyMCE -->
+<div id="word-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70">
+    <div
+        class="bg-[#0f0f17] rounded-xl border border-white/10 w-[min(1100px,92vw)] h-[min(640px,90vh)] p-0 overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <h3 class="text-white font-semibold">Editor (Word)</h3>
+            <div class="flex items-center gap-2">
+                <button id="btn-save-word" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold">Salvar
+                    alterações</button>
+                <button id="btn-close-word"
+                    class="px-4 py-2 bg-white/10 text-white rounded-lg font-semibold">Fechar</button>
+            </div>
+        </div>
+        <!-- o TinyMCE "pega" este textarea -->
+        <textarea id="word-editor" class="w-full h-full"></textarea>
+    </div>
+</div>
+
+<style>
+    .editing-on #toggle-edit {
+        background: #ef4444 !important;
+        /* vermelho */
+    }
+
+    .editing-on #toggle-edit::after {
+        content: " (modo edição)";
+    }
+</style>
+
+<!-- libs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+
+<!-- TinyMCE com sua API KEY -->
+<script src="https://cdn.tiny.cloud/1/{{ tinymce_key|default('no-api-key') }}/tinymce/6/tinymce.min.js"
+    referrerpolicy="origin"></script>
+
+<script>
+    const filename = "{{ filename }}";
+    const basePDF = "{{ url_for('view_pdf', filename=filename) }}";
+    let PDF_URL = basePDF;
+
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+
+    const pageContainer = document.getElementById("page-container");
+    const pageInfo = document.getElementById("page-info");
+    const historyLog = (t) => console.log(t);
+
+    let pdfDoc = null, pageNum = 1, pageScale = 1.2, fabricCanvas = null;
+    let editMode = false;
+
+    // helper pra escapar texto em HTML
+    function escapeHtml(str) {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // carrega o texto do PDF via /api/extract_text e joga no TinyMCE
+    async function loadPdfTextIntoEditor() {
+        const fd = new FormData();
+        fd.append("filename", filename);
+
+        try {
+            const r = await fetch("/api/extract_text", {
+                method: "POST",
+                body: fd
+            }).then(r => r.json());
+
+            if (!r.ok) {
+                alert("Não foi possível extrair o texto do PDF.");
+                return;
+            }
+
+            const ed = tinymce.get("word-editor");
+            if (!ed) return;
+
+            const txt = r.text || "";
+            // coloca como <pre> pra manter quebras de linha
+            const html = `<pre style="font-family:monospace; white-space:pre-wrap;">${escapeHtml(txt)}</pre>`;
+            ed.setContent(html);
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao carregar o texto do PDF para o editor.");
+        }
+    }
+
+    // Modo edição visual
+    document.getElementById("toggle-edit").addEventListener("click", () => {
+        editMode = !editMode;
+        if (editMode) {
+            document.body.classList.add("editing-on");
+            document.getElementById("toggle-edit").textContent = "Sair do modo edição";
+            historyLog("🟢 Entrou no modo edição.");
+        } else {
+            document.body.classList.remove("editing-on");
+            document.getElementById("toggle-edit").textContent = "Ativar edição";
+            historyLog("🔴 Saiu do modo edição.");
+        }
+    });
+
+    // Carregar PDF
+    async function renderPage() {
+        pageContainer.innerHTML = "";
+        const page = await pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: pageScale });
+
+        const bg = document.createElement("canvas");
+        bg.width = Math.floor(viewport.width);
+        bg.height = Math.floor(viewport.height);
+        pageContainer.style.width = `${bg.width}px`;
+        pageContainer.style.height = `${bg.height}px`;
+        pageContainer.appendChild(bg);
+        await page.render({ canvasContext: bg.getContext("2d"), viewport }).promise;
+
+        // Texto (para futura detecção de linha – mantido invisível)
+        const textLayer = document.createElement("div");
+        textLayer.className = "textLayer";
+        textLayer.style.width = `${bg.width}px`;
+        textLayer.style.height = `${bg.height}px`;
+        textLayer.style.position = "absolute";
+        textLayer.style.left = "0"; textLayer.style.top = "0";
+        textLayer.style.right = "0"; textLayer.style.bottom = "0";
+        textLayer.style.opacity = 0; textLayer.style.pointerEvents = "auto";
+        pageContainer.appendChild(textLayer);
+
+        const textContent = await page.getTextContent();
+        await pdfjsLib.renderTextLayer({
+            textContent, container: textLayer, viewport, textDivs: []
+        }).promise;
+
+        // Overlay fabric
+        const fabricEl = document.createElement("canvas");
+        fabricEl.className = "fabric-overlay";
+        fabricEl.width = bg.width; fabricEl.height = bg.height;
+        fabricEl.style.position = "absolute";
+        fabricEl.style.left = 0; fabricEl.style.top = 0; fabricEl.style.zIndex = 10;
+        pageContainer.appendChild(fabricEl);
+
+        fabricCanvas = new fabric.Canvas(fabricEl, {
+            selection: true, preserveObjectStacking: true, enableRetinaScaling: false
+        });
+
+        // Duplo clique: só funciona se editMode
+        fabricCanvas.upperCanvasEl.addEventListener("dblclick", (e) => {
+            if (!editMode) return;
+            const tb = new fabric.Textbox("Digite aqui", {
+                left: e.offsetX, top: e.offsetY, width: 300,
+                fontSize: 12, fontFamily: "helv", fill: "#000000",
+                editable: true, lockScalingFlip: true
+            });
+            fabricCanvas.add(tb).setActiveObject(tb);
+            tb.enterEditing(); tb.selectAll();
+        });
+
+        pageInfo.textContent = `${pageNum} / ${pdfDoc.numPages}`;
+    }
+
+    async function loadDoc() {
+        pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
+        pageNum = 1;
+        await renderPage();
+    }
+    (async () => { await loadDoc(); })();
+
+    // Navegação
+    document.getElementById("prev-page").onclick = async () => { if (pageNum > 1) { pageNum--; await renderPage(); } };
+    document.getElementById("next-page").onclick = async () => { if (pageNum < pdfDoc.numPages) { pageNum++; await renderPage(); } };
+
+    // Ações (chamam backend)
+    async function rotate() {
+        const d = document.getElementById("rotate-deg").value;
+        const fd = new FormData(); fd.append("filename", filename); fd.append("degrees", d);
+        const r = await fetch("/api/rotate", { method: "POST", body: fd }).then(r => r.json());
+        if (r.ok) { PDF_URL = basePDF + "?t=" + Date.now(); await loadDoc(); }
+    }
+    async function watermark() {
+        const t = document.getElementById("wm-text").value || "PDF Wizard";
+        const fd = new FormData(); fd.append("filename", filename); fd.append("text", t);
+        const r = await fetch("/api/watermark", { method: "POST", body: fd }).then(r => r.json());
+        if (r.ok) { PDF_URL = basePDF + "?t=" + Date.now(); await loadDoc(); }
+    }
+    function downloadPNG() {
+        const p = document.getElementById("png-page").value || "1";
+        const fd = new FormData(); fd.append("filename", filename); fd.append("page", p);
+        fetch("/api/page_png", { method: "POST", body: fd }).then(res => {
+            if (!res.ok) return;
+            return res.blob().then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url; a.download = "page.png"; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 500);
+            });
+        });
+    }
+    async function insertImage() {
+        const page = document.getElementById("img-page").value || "1";
+        const x = document.getElementById("img-x").value || "72";
+        const y = document.getElementById("img-y").value || "72";
+        const w = document.getElementById("img-w").value || "200";
+        const img = document.getElementById("img-file").files[0];
+        if (!img) return;
+
+        const fd = new FormData();
+        fd.append("filename", filename);
+        fd.append("page", page);
+        fd.append("x", x); fd.append("y", y); fd.append("w", w);
+        fd.append("image", img);
+
+        const r = await fetch("/api/insert_image", { method: "POST", body: fd }).then(r => r.json());
+        if (r.ok) { PDF_URL = basePDF + "?t=" + Date.now(); await loadDoc(); }
+    }
+    async function merge() {
+        const files = document.getElementById("merge-files").files;
+        if (!files.length) return;
+        const fd = new FormData();
+        fd.append("filename", filename);
+        for (const f of files) fd.append("files", f);
+        const r = await fetch("/api/merge", { method: "POST", body: fd }).then(r => r.json());
+        if (r.ok) { PDF_URL = basePDF + "?t=" + Date.now(); await loadDoc(); }
+    }
+    async function extractText() {
+        const fd = new FormData(); fd.append("filename", filename);
+        const r = await fetch("/api/extract_text", { method: "POST", body: fd }).then(r => r.json());
+        if (r.ok) alert(r.text.slice(0, 1000) + (r.text.length > 1000 ? "\n...\n(truncado)" : ""));
+    }
+
+    // ---------------- TinyMCE (Editor tipo Word) ----------------
+    // Abre modal + carrega texto extraído no editor
+    document.getElementById("btn-open-word").addEventListener("click", async () => {
+        const modal = document.getElementById("word-modal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+
+        if (!tinymce?.get('word-editor')) {
+            tinymce.init({
+                selector: '#word-editor',
+                menubar: 'file edit view insert format tools table help',
+                plugins: 'lists link table code image autoresize',
+                toolbar:
+                    'undo redo | styles | bold italic underline forecolor | ' +
+                    'alignleft aligncenter alignright | bullist numlist | ' +
+                    'outdent indent | table | link image | code',
+                height: 520,
+                branding: false,
+                promotion: false,
+                content_style:
+                    'body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:14px}',
+                init_instance_callback: async function (editor) {
+                    await loadPdfTextIntoEditor();
+                }
+            });
+        } else {
+            await loadPdfTextIntoEditor();
+        }
+    });
+
+    // Fechar modal
+    document.getElementById("btn-close-word").addEventListener("click", () => {
+        document.getElementById("word-modal").classList.add("hidden");
+        document.getElementById("word-modal").classList.remove("flex");
+    });
+
+    // Salvar (ainda só capturando o HTML – depois ligamos no backend)
+    document.getElementById("btn-save-word").addEventListener("click", async () => {
+        const ed = tinymce.get('word-editor');
+        const html = ed ? ed.getContent() : "";
+        console.log("Conteúdo TinyMCE:", html.slice(0, 200), "...");
+        alert("Conteúdo capturado. Falta conectar ao backend HTML -> PDF para sobrescrever o PDF.");
+    });
+</script>
+
+{% endblock %}

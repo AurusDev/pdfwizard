@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="text-center py-24 px-4">
+    <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
+        Conciliação
+        <span
+            class="bg-gradient-to-r from-[#7c3aed] via-[#a78bfa] to-[#7c3aed] text-transparent bg-clip-text animate-gradient-text">
+            COTIDIANO
+        </span>
+    </h1>
+    <p class="text-white/70 text-lg max-w-2xl mx-auto mb-12">
+        Painel de controle destinado à confluência e otimização de arquivos
+        (Vale Transportes & Recibos)
+    </p>
+
+    <!-- Ícone animado existente -->
+    <div class="relative mx-auto w-28 h-36 mt-6">
+        <div
+            class="absolute inset-0 bg-gradient-to-b from-[#7c3aed]/60 to-[#6d28d9]/90 rounded-lg shadow-xl animate-float">
+        </div>
+        <div class="absolute inset-[3px] bg-[#0f0f17] rounded-lg"></div>
+        <div class="absolute top-3 left-3 w-10 h-2 bg-[#7c3aed]/70 rounded-sm"></div>
+        <div class="absolute top-6 left-3 w-14 h-1 bg-[#a78bfa]/60 rounded-sm"></div>
+        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-white/80 font-semibold tracking-widest">
+            PDF
+        </div>
+    </div>
+
+    <div class="mt-12 flex justify-center gap-4">
+        <a href="#upload"
+            class="px-6 py-3 rounded-lg bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold transition">
+            Começar agora
+        </a>
+        <a href="#upload"
+            class="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition">
+            Ver recursos
+        </a>
+    </div>
+</section>
+
+<style>
+    /* Animação do gradiente na palavra COTIDIANO */
+    @keyframes gradient-move {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .animate-gradient-text {
+        background-size: 200% 200%;
+        animation: gradient-move 4s ease infinite;
+    }
+</style>
+
+<!-- SEÇÃO DE UPLOAD -->
+<section id="upload" class="flex justify-center items-center py-32 px-4 relative">
+    <div class="relative w-full max-w-md bg-white/5 p-10 text-center rounded-2xl shadow-lg border border-white/10">
+
+        <!-- ÍCONE ANIMADO -->
+        <div class="absolute -top-12 left-1/2 -translate-x-1/2">
+            <div class="relative">
+                <div class="absolute inset-0 rounded-full bg-[#7c3aed]/30 blur-xl animate-pulse"></div>
+                <div
+                    class="relative z-10 bg-[#7c3aed] w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-[#7c3aed]/40">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="white" class="w-8 h-8 animate-bounce">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 16V4m0 0l4 4m-4-4L8 8m8 8H8m-4 0a4 4 0 014-4h8a4 4 0 014 4v4a4 4 0 01-4 4H8a4 4 0 01-4-4v-4z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DO CARD -->
+        <div class="mt-10">
+            <h3 class="text-2xl font-semibold mb-2 text-white">Envie seu PDF</h3>
+            <p class="text-white/60 mb-6 max-w-sm mx-auto">
+                Arraste e solte seu arquivo PDF aqui ou clique para selecionar.<br>
+                Você poderá visualizá-lo e editá-lo diretamente no navegador.
+            </p>
+
+            <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div id="drop-zone"
+                    class="border border-dashed border-white/20 rounded-lg p-6 mb-6 hover:border-[#7c3aed] transition cursor-pointer">
+                    <input type="file" name="file" accept=".pdf" id="file-upload" class="hidden" />
+                    <label for="file-upload" class="cursor-pointer text-white/70 hover:text-[#a78bfa]" id="file-label">
+                        Solte o PDF aqui
+                    </label>
+                </div>
+                <button type="submit"
+                    class="bg-[#7c3aed] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#6d28d9] transition">
+                    Enviar e Editar
+                </button>
+            </form>
+
+            <!-- INSTRUÇÕES VISUAIS -->
+            <div class="mt-8 border-t border-white/10 pt-6 space-y-3 text-left">
+                <div class="flex items-start gap-3">
+                    <div class="bg-[#7c3aed]/20 text-[#a78bfa] rounded-lg p-2">
+                        📄
+                    </div>
+                    <p class="text-white/70 text-sm leading-relaxed">
+                        Visualize seu PDF diretamente no navegador com renderização de alta qualidade.
+                    </p>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="bg-[#7c3aed]/20 text-[#a78bfa] rounded-lg p-2">
+                        ✏️
+                    </div>
+                    <p class="text-white/70 text-sm leading-relaxed">
+                        Edite, gire, divida, mescle e proteja seus arquivos com apenas um clique.
+                    </p>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="bg-[#7c3aed]/20 text-[#a78bfa] rounded-lg p-2">
+                        💾
+                    </div>
+                    <p class="text-white/70 text-sm leading-relaxed">
+                        Faça o download do novo PDF somente quando estiver satisfeito com as edições.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ESTILOS -->
+<style>
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-12px) rotate(2deg);
+        }
+    }
+
+    .animate-float {
+        animation: float 3.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.9;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.5;
+        }
+    }
+
+    .animate-pulse {
+        animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    .animate-bounce {
+        animation: bounce 2s infinite;
+    }
+</style>
+
+<!-- SCRIPT DE UPLOAD -->
+<script>
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("file-upload");
+    const label = document.getElementById("file-label");
+
+    dropZone.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (file) label.textContent = file.name;
+    });
+
+    dropZone.addEventListener("dragover", e => {
+        e.preventDefault();
+        dropZone.classList.add("border-[#7c3aed]", "bg-white/5");
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("border-[#7c3aed]", "bg-white/5");
+    });
+
+    dropZone.addEventListener("drop", e => {
+        e.preventDefault();
+        dropZone.classList.remove("border-[#7c3aed]", "bg-white/5");
+        const file = e.dataTransfer.files[0];
+        if (file && file.type === "application/pdf") {
+            fileInput.files = e.dataTransfer.files;
+            label.textContent = file.name;
+        } else {
+            alert("Por favor, envie apenas arquivos PDF.");
+        }
+    });
+</script>
+
+{% endblock %}

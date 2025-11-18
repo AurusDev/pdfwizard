@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conciliação Cotidiano</title>
+
+    <!-- Tailwind via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonte -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg: #0f0f17;
+            --text: #eaeaea;
+            --muted: rgba(234, 234, 234, 0.65);
+            --line: rgba(255, 255, 255, 0.08);
+            --primary: #7c3aed;
+            --primary-2: #a78bfa;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        @keyframes gradient-move {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        .footer-gradient-line {
+            background: linear-gradient(90deg, var(--primary), var(--primary-2), var(--primary));
+            background-size: 200% 200%;
+            animation: gradient-move 6s ease infinite;
+        }
+
+        @keyframes pulse-soft {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: .9
+            }
+
+            50% {
+                transform: scale(1.12);
+                opacity: .6
+            }
+        }
+
+        .dot-pulse {
+            animation: pulse-soft 2.4s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="flex justify-between items-center px-8 py-4 border-b border-white/10 backdrop-blur-sm">
+        <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[var(--primary)]"></span>
+            <span class="font-semibold tracking-tight">DP Forte</span>
+        </div>
+        <nav class="flex gap-6 text-white/70">
+            <a href="{{ url_for('index') }}" class="hover:text-white">Início</a>
+            <a href="#upload" class="hover:text-white">Upload</a>
+        </nav>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="relative mt-20 border-t border-white/10 bg-[#0a0a11]">
+        <div class="footer-gradient-line absolute top-0 left-0 w-full h-[2px]"></div>
+        <div class="max-w-6xl mx-auto px-6 py-10 text-center text-white/70 space-y-6">
+            <nav class="flex flex-wrap justify-center gap-6 text-sm">
+                <a href="{{ url_for('index') }}" class="hover:text-[var(--primary-2)] transition">Início</a>
+                <a href="#upload" class="hover:text-[var(--primary-2)] transition">Upload</a>
+                <a href="#" class="hover:text-[var(--primary-2)] transition">Recursos</a>
+                <a href="#" class="hover:text-[var(--primary-2)] transition">Contato</a>
+                <a href="https://github.com" target="_blank" class="hover:text-[var(--primary-2)] transition">GitHub</a>
+            </nav>
+            <div class="flex flex-col items-center space-y-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-[var(--primary)] dot-pulse"></div>
+                    <p class="font-semibold text-[var(--primary-2)] tracking-wide">Núcleo Digital MG</p>
+                </div>
+                <p class="text-xs text-white/40">© <span id="year"></span> — Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

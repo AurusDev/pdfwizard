@@ -1,0 +1,20 @@
+# Web
+Flask==3.0.3
+gunicorn==23.0.0
+
+# PDF core
+pypdf==4.3.1
+reportlab==4.2.2
+Pillow==10.4.0
+PyMuPDF==1.24.10
+
+# Exportar página do PDF para PNG (se realmente usar pdf2image)
+pdf2image==1.17.0
+
+# Modo "Editar como Word"
+mammoth==1.8.0
+html2docx==1.6.0
+
+# Utilitários
+werkzeug==3.0.3
+python-dotenv==1.0.1
